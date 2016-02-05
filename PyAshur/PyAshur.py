@@ -118,7 +118,7 @@ def main():
 
     # This is how we add handlers for Telegram messages
     dp.addTelegramCommandHandler("start", start)
-    dp.addTelegramCommandHandler("help", help)
+    dp.addTelegramCommandHandler("help", help) 
     dp.addUnknownTelegramCommandHandler(unknown_command)
     # Message handlers only receive updates that don't contain commands
     dp.addTelegramMessageHandler(message)
