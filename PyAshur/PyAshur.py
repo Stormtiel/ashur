@@ -1,95 +1,93 @@
-from telegram import Updater
+﻿from telegram import Updater
 from telegram.dispatcher import run_async
 from time import sleep
 import logging
 import configparser
+from datetime import datetime
+import os
+import random
 
 # Enable Logging
-logging.basicConfig(
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        level=logging.INFO)
+logging.basicConfig(level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',\
+        filemode='w',
+        filename= os.getcwd() + '/logs/' + datetime.strftime(datetime.now(), '%Y-%m-%d %H-%M-%S') + '.log'
+        )
+console = logging.StreamHandler()
+console.setLevel(logging.INFO)
+logging.getLogger('').addHandler(console)
 
 logger = logging.getLogger(__name__)
 
-# We use this var to save the last chat id, so we can reply to it
 last_chat_id = 0
 
 
-# Define a few (command) handlers. These usually take the two arguments bot and
-# update. Error handlers also receive the raised TelegramError object in error.
+# Command handlers
 def start(bot, update):
-    """ Answer in Telegram """
     bot.sendMessage(update.message.chat_id, text='Hello, ' + update.message.from_user.first_name + '.')
 
 def hiashur(bot,update):
-    """ Answer in Telegram """
     bot.sendMessage(update.message.chat_id, text='Hello, ' + update.message.from_user.first_name + '.')
 
+def norn(bot,update):
+    name1 = ["Crunch", "Olaf", "Beef", "Chunk", "Smoke", "Brick", "Crash", "Thick", "Bold", "Buff", "Drunk", "Punch", "Crud", "Grizzle", "Slab", "Hack", "Big"]
+    name2 = ["Mac", "Mc", ""]
+    name3 = ["Thunder", "Fuck", "Butt", "Steak", "Hard", "Rock", "Large", "Huge", "Beef", "Thrust", "Big", "Bigger", "Meat", "Hard", "Fight", "Fizzle", "Run", "Fast", "Drink", "Lots", "Slam", "Chest", "Groin", "Bone", "Meal", "Thorn", "Body", "Squat"]
+
+    n1 = name1[random.randint(0, len(name1)-1)]
+    n2 = name2[random.randint(0, len(name2)-1)]
+    n3 = name3[random.randint(0, len(name3)-1)]
+    n4 = name3[random.randint(0, len(name3)-1)].lower()
+
+    bot.sendMessage(update.message.chat_id, text= n1 + " " + n2 + n3 + n4)
+
 def help(bot, update):
-    """ Answer in Telegram """
     bot.sendMessage(update.message.chat_id, text= "Greetings, I am Cephalon Ashur. I specialize in reminding Operators of alerts that pop up on the Warframe RSS feed. I can also obey a select number of commands: \n \n" +
                                 "/hiashur - Say hello.\n"
-                                + "/watch - Give me a keyword to watch for.\n" 
-                                + "/watching - Get a list of all keywords I'm watching.\n"
-                                + "/showall - Toggles showing alerts based on keywords.\n" 
-                                + "/blabber - Toggles me blabbering alerts at you.\n"
-                                + "/npc - I'll send you a random Warframe NPC voice clip.\n"
+                               # + "/watch - Give me a keyword to watch for.\n"
+                               # + "/watching - Get a list of all keywords I'm watching.\n"
+                               # + "/showall - Toggles showing alerts based on keywords.\n"
+                               # + "/blabber - Toggles me blabbering alerts at you.\n"
+                               # + "/npc - I'll send you a random Warframe NPC voice clip.\n"
                                 + "/norn - Generates a Norn name.\n"
-                                + "/weed - WEEEEEEEEEEEEEEEEEED \n"
+                               # + "/weed - WEEEEEEEEEEEEEEEEEED \n"
                                 + "/help - Show list of commands.")
 
-
+#logs icnoming messages
 def any_message(bot, update):
-    """ Print to console """
-
     # Save last chat_id to use in reply handler
     global last_chat_id
     last_chat_id = update.message.chat_id
 
-    logger.info("\nFrom: %s\nchat_id: %d\nText: %s" %
-                (update.message.from_user,
-                 update.message.chat_id,
+    logger.info("%d > %s - %s %s: %s" %
+                (update.message.chat_id,
+                 update.message.from_user.username,
+                 update.message.from_user.first_name,
+                 update.message.from_user.last_name,
                  update.message.text))
 
 
+#error message when unknown command
 def unknown_command(bot, update):
-    """ Answer in Telegram """
     bot.sendMessage(update.message.chat_id, text='I\'m sorry, I don\'t know what you just said. Try /help.')
 
 
+#example async handler
 @run_async
 def message(bot, update, **kwargs):
-    """
-    Example for an asynchronous handler. It's not guaranteed that replies will
-    be in order when using @run_async. Also, you have to include **kwargs in
-    your parameter list. The kwargs contain all optional parameters that are
-    """
 
     sleep(2)  # IO-heavy operation here
     bot.sendMessage(update.message.chat_id, text='Echo: %s' %
                                                  update.message.text)
 
 
-# These handlers are for updates of type str. We use them to react to inputs
-# on the command line interface
+# CLI handlers
 def cli_reply(bot, update, args):
-    """
-    For any update of type telegram.Update or str that contains a command, you
-    can get the argument list by appending args to the function parameters.
-    Here, we reply to the last active chat with the text after the command.
-    """
     if last_chat_id is not 0:
         bot.sendMessage(chat_id=last_chat_id, text=' '.join(args))
 
 
 def cli_noncommand(bot, update, update_queue):
-    """
-    You can also get the update queue as an argument in any handler by
-    appending it to the argument list. Be careful with this though.
-    Here, we put the input string back into the queue, but as a command.
-    To learn more about those optional handler parameters, read:
-    http://python-telegram-bot.readthedocs.org/en/latest/telegram.dispatcher.html
-    """
     update_queue.put('/%s' % update)
 
 
@@ -116,45 +114,28 @@ def main():
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
-    # This is how we add handlers for Telegram messages
+    # add important handlers
     dp.addTelegramCommandHandler("start", start)
     dp.addTelegramCommandHandler("help", help)
     dp.addUnknownTelegramCommandHandler(unknown_command)
-    # Message handlers only receive updates that don't contain commands
+
     dp.addTelegramMessageHandler(message)
-    # Regex handlers will receive all updates on which their regex matches
     dp.addTelegramRegexHandler('.*', any_message)
 
-    #Non-essential functions
+    #non-essential handlers
     dp.addTelegramCommandHandler('hiashur', hiashur)
+    dp.addTelegramCommandHandler('norn', norn)
 
-    # String handlers work pretty much the same
+    #CLI handlers
     dp.addStringCommandHandler('reply', cli_reply)
     dp.addUnknownStringCommandHandler(unknown_cli_command)
     dp.addStringRegexHandler('[^/].*', cli_noncommand)
 
-    # All TelegramErrors are caught for you and delivered to the error
-    # handler(s). Other types of Errors are not caught.
+    #Error handler
     dp.addErrorHandler(error)
 
-    # Start the Bot and store the update Queue, so we can insert updates
+    #start bot and start polling
     update_queue = updater.start_polling(poll_interval=0.1, timeout=10)
-
-
-    '''
-    # Alternatively, run with webhook:
-    updater.bot.setWebhook(webhook_url='https://example.com/%s' % token,
-                           certificate=open('cert.pem', 'rb'))
-    update_queue = updater.start_webhook('0.0.0.0',
-                                         443,
-                                         url_path=token,
-                                         cert='cert.pem',
-                                         key='key.key')
-    # Or, if SSL is handled by a reverse proxy, the webhook URL is already set
-    # and the reverse proxy is configured to deliver directly to port 6000:
-    update_queue = updater.start_webhook('0.0.0.0',
-                                         6000)
-    '''
 
     # Start CLI-Loop
     while True:
