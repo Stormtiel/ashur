@@ -7,6 +7,14 @@ from datetime import datetime
 import os
 import random
 
+#configuration file loading
+config = configparser.ConfigParser()
+config.read('info.ini')
+
+#Enable debug mode. Prevents anybody other than the owner from sending commands. Reduces error spam.
+DEBUG_MODE = True
+owner = int(config.get('Connection','Owner'))
+
 # Enable Logging
 logging.basicConfig(level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',\
@@ -53,33 +61,31 @@ def help(bot, update):
                                # + "/weed - WEEEEEEEEEEEEEEEEEED \n"
                                 + "/help - Show list of commands.")
 
+def weed(bot, update):
+    bot.sendVoice(update.message.chat_id, "BQADAwADnAADjNBuCb4NsdCmFqGFAg")
+
 #logs icnoming messages
 def any_message(bot, update):
-    # Save last chat_id to use in reply handler
-    global last_chat_id
-    last_chat_id = update.message.chat_id
+    if(DEBUG_MODE == True):
+        if(update.message.chat_id != owner):
+            bot.sendMessage(update.message.chat_id, "I'm sorry, debug mode is enabled and I can only recieve commands from my owner at the moment.")
+            raise ValueError('Unauthorized user attempted command.')
+
+    else:
+        # Save last chat_id to use in reply handler
+        global last_chat_id
+        last_chat_id = update.message.chat_id
 
     logger.info("%d > %s - %s %s: %s" %
                 (update.message.chat_id,
-                 update.message.from_user.username,
-                 update.message.from_user.first_name,
-                 update.message.from_user.last_name,
-                 update.message.text))
-
+                    update.message.from_user.username,
+                    update.message.from_user.first_name,
+                    update.message.from_user.last_name,
+                    update.message.text))
 
 #error message when unknown command
 def unknown_command(bot, update):
     bot.sendMessage(update.message.chat_id, text='I\'m sorry, I don\'t know what you just said. Try /help.')
-
-
-#example async handler
-@run_async
-def message(bot, update, **kwargs):
-
-    sleep(2)  # IO-heavy operation here
-    bot.sendMessage(update.message.chat_id, text='Echo: %s' %
-                                                 update.message.text)
-
 
 # CLI handlers
 def cli_reply(bot, update, args):
@@ -101,11 +107,7 @@ def error(bot, update, error):
 
 
 def main():
-    #configuration file loading
-    config = configparser.ConfigParser()
-    config.read('info.ini')
-
-    # Create the EventHandler and pass it your bot's token.
+    #pass the token
     token = config.get("Connection","Token")
     group = config.get("Connection","Group")
 
@@ -119,12 +121,12 @@ def main():
     dp.addTelegramCommandHandler("help", help)
     dp.addUnknownTelegramCommandHandler(unknown_command)
 
-    dp.addTelegramMessageHandler(message)
     dp.addTelegramRegexHandler('.*', any_message)
 
     #non-essential handlers
     dp.addTelegramCommandHandler('hiashur', hiashur)
     dp.addTelegramCommandHandler('norn', norn)
+    dp.addTelegramCommandHandler('weed', weed)
 
     #CLI handlers
     dp.addStringCommandHandler('reply', cli_reply)
@@ -151,7 +153,8 @@ def main():
 
         # else, put the text into the update queue to be handled by our handlers
         elif len(text) > 0:
-            update_queue.put(text)
+                update_queue.put(text)
+
 
 if __name__ == '__main__':
     main()

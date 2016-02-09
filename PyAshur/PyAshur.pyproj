@@ -22,6 +22,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="fileIDFinder.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="PyAshur.py" />
   </ItemGroup>
   <ItemGroup>
