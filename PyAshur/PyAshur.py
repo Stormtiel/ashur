@@ -13,7 +13,7 @@ config.read('info.ini')
 
 #Enable debug mode. Prevents anybody other than the owner from sending commands. Reduces error spam.
 DEBUG_MODE = True
-owner = int(config.get('Connection','Owner'))
+owner = config.get('Connection','Owner')
 
 # Enable Logging
 logging.basicConfig(level=logging.INFO,
@@ -40,7 +40,7 @@ def hiashur(bot,update):
 def norn(bot,update):
     name1 = ["Crunch", "Olaf", "Beef", "Chunk", "Smoke", "Brick", "Crash", "Thick", "Bold", "Buff", "Drunk", "Punch", "Crud", "Grizzle", "Slab", "Hack", "Big"]
     name2 = ["Mac", "Mc", ""]
-    name3 = ["Thunder", "Fuck", "Butt", "Steak", "Hard", "Rock", "Large", "Huge", "Beef", "Thrust", "Big", "Bigger", "Meat", "Hard", "Fight", "Fizzle", "Run", "Fast", "Drink", "Lots", "Slam", "Chest", "Groin", "Bone", "Meal", "Thorn", "Body", "Squat"]
+    name3 = ["Balls", "Thunder", "Fuck", "Butt", "Steak", "Hard", "Rock", "Large", "Huge", "Beef", "Thrust", "Big", "Bigger", "Meat", "Hard", "Fight", "Fizzle", "Run", "Fast", "Drink", "Lots", "Slam", "Chest", "Groin", "Bone", "Meal", "Thorn", "Body", "Squat"]
 
     n1 = name1[random.randint(0, len(name1)-1)]
     n2 = name2[random.randint(0, len(name2)-1)]
@@ -62,13 +62,14 @@ def help(bot, update):
                                 + "/help - Show list of commands.")
 
 def weed(bot, update):
-    bot.sendVoice(update.message.chat_id, "BQADAwADnAADjNBuCb4NsdCmFqGFAg")
+    bot.sendAudio(update.message.chat_id, 'BQADAwADnAADjNBuCb4NsdCmFqGFAg')
 
 #logs icnoming messages
 def any_message(bot, update):
     if(DEBUG_MODE == True):
-        if(update.message.chat_id != owner):
-            bot.sendMessage(update.message.chat_id, "I'm sorry, debug mode is enabled and I can only recieve commands from my owner at the moment.")
+        if(update.message.from_user.username != owner):
+            bot.sendMessage(update.message.chat_id, "I'm sorry, debug mode is enabled and I can only receive commands from my owner at the moment.")
+            #there's probably a way to make this less wordy, but it's okay for now
             raise ValueError('Unauthorized user attempted command.')
 
     else:
