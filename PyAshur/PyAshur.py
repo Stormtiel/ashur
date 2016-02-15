@@ -12,7 +12,7 @@ config = configparser.ConfigParser()
 config.read('info.ini')
 
 #Enable debug mode. Prevents anybody other than the owner from sending commands. Reduces error spam.
-DEBUG_MODE = True
+DEBUG_MODE = False
 owner = config.get('Connection','Owner')
 
 # Enable Logging
@@ -58,11 +58,67 @@ def help(bot, update):
                                # + "/blabber - Toggles me blabbering alerts at you.\n"
                                # + "/npc - I'll send you a random Warframe NPC voice clip.\n"
                                 + "/norn - Generates a Norn name.\n"
+                                + "/song - Sends a random song.\n"
                                # + "/weed - WEEEEEEEEEEEEEEEEEED \n"
                                 + "/help - Show list of commands.")
 
 def weed(bot, update):
-    bot.sendAudio(update.message.chat_id, 'BQADAwADnAADjNBuCb4NsdCmFqGFAg')
+    bot.sendAudio(update.message.chat_id, "BQADAwAD9QADjNBuCVND9DAbU9S6Ag", "Councilor Vay Hek", "WEED")
+
+def song(bot, update):
+
+    songs = [["BQADAwAD9gADjNBuCaiKvd8et3ktAg","Caravan Palace","Lone Digger"],
+             ["BQADAwAD9wADjNBuCdD8ctbcUZJ_Ag","Five Iron Frenzy","It Was A Dark and Stormy Night"]
+             ];
+
+    song = songs[random.randint(0, len(songs)-1)]
+    file = song[0]
+    artist = song[1]
+    title = song[2]
+
+    bot.sendAudio(update.message.chat_id, file, artist, title)
+
+def kinkshame(bot, update, args):
+    if "@" in ' '.join(args):
+        target = ' '.join(args)
+    else:
+        target = ''
+
+    photos = ["AgADAwADFasxG4zQbgk5ARt59FNJ84v26yoABIurJjLTxGHqqucAAgI",
+                "AgADAwADFqsxG4zQbgmeLU8qJeYtkXb36yoABJ5P2Z6ypVtF7ecAAgI",
+                "AgADAwADF6sxG4zQbgkxPqwKqBbD9Qn36yoABDDDDdgfM4ml_ucAAgI",
+                "AgADAwADGKsxG4zQbgmZ1Pr5uI5tRY4AAewqAAQbv3d31MnNTBTnAAIC",
+                "AgADAwADGasxG4zQbgmzG2GWKfY-eTb26yoABMf6FJCQbopE7eMAAgI",
+                "AgADAwADG6sxG4zQbglCIbxXXz3jdHIb7yoABB5gGbnLdT65aG8BAAEC",
+                "AgADAwADHKsxG4zQbgmeqA6BjVcUOzIW7yoABMILZ36SdBdObXMBAAEC",
+                "AgADAwADHasxG4zQbglSLXgtYiKS33UJ7CoABGhUxLefAt84hOcAAgI",
+                "AgADAwADGqsxG4zQbgkixkCtpf7iGhD86yoABN-R9pQCplB8BegAAgI",
+                "AgADAwADH6sxG4zQbgldDvtQ4XcaOb4V7yoABEQGK46vVoD4AAFuAQABAg",
+                "AgADAwADHqsxG4zQbgmn0R7fF6rVIcgb7yoABKYgZowSo9YQNHMBAAEC",
+                "AgADAwADIKsxG4zQbgm6ereuhfBw91L26yoABDIbw4kJyPTnmusAAgI",
+                "AgADAwADIasxG4zQbgmjeaaVl3bpswf26yoABMzcgtXwX0836OkAAgI",
+                "AgADAwADI6sxG4zQbgmTGUrRIO6RUnL3hjEABFjPG65yTBqaL1EAAgI",
+                "AgADAwADIqsxG4zQbgkdATXBze1LZdj3hjEABASalwlufLRhYlAAAgI",
+                "AgADAwADJKsxG4zQbglAsRpHtyUBZOL46yoABHGm4h0cVdw6NOoAAgI",
+                "AgADAwADJqsxG4zQbgl_4BnIZkzQjrIU7yoABGgGJ_XKYIfvTnEBAAEC",
+                "AgADAwADJasxG4zQbgkXk-T3pUf_8cMF7CoABHGanjqPA7YwnuYAAgI",
+                "AgADAwADJ6sxG4zQbgn6z7CeTwAB6X9tCewqAAT6z_otIrXhJaHlAAIC",
+                "AgADAwADKasxG4zQbglysMO1Px4102_66yoABFZlB8F8Lv9xmOcAAgI",
+                "AgADAwADKKsxG4zQbgmXh_-vmMOdbpv46yoABGXvmrLUh9kwO-cAAgI",
+                "AgADAwADKqsxG4zQbgl76v4rYmg7HhAU7yoABBfExK9jDpyQC3MBAAEC",
+                "AgADAwADK6sxG4zQbglqKL6v4G8pCr3_6yoABGDAIalQlwXNU-sAAgI",
+                "AgADAwADLKsxG4zQbgnOO6p91tk5kF4J7CoABL9MPp34InF6NugAAgI",
+                "AgADAwADLasxG4zQbgkjTfZpRsM4t8f1hjEABEF0nwvn6xgTU1EAAgI",
+                "AgADAwADLqsxG4zQbgnOdSDekS4PYSUH7CoABB9-YtOON9LIE-wAAgI",
+                "AgADAwADL6sxG4zQbgnVqVLXJVBHwN8H7CoABDinX41Md3R8_-YAAgI",
+                "AgADAwADMKsxG4zQbgkvn4Je5DgAAb29-usqAATUdnN4VuYeCRLnAAIC",
+                "AgADAwADMasxG4zQbgntrjpsKkEim24c7yoABKyrQS-bUkvURHEBAAEC",
+                "AgADAwADMqsxG4zQbgl8l5u60GsAAcMbGu8qAAQ7WHs8yI7JutpxAQABAg",
+                "AgADAwADM6sxG4zQbgk_Ja9qN9ZrMM0X7yoABF2MUFrEECyH5HMBAAEC",
+                "AgADAwADNKsxG4zQbgnZoiSGA9Tbe9YG7CoABEHYVLtY11mAoesAAgI",
+                "AgADAwADNasxG4zQbglbSCiL9eVMMboZ7yoABODPeyhYyaHUtW0BAAEC"]
+
+    bot.sendPhoto(update.message.chat_id, photos[random.randint(0, len(photos)-1)], target)
 
 #logs icnoming messages
 def any_message(bot, update):
@@ -128,6 +184,8 @@ def main():
     dp.addTelegramCommandHandler('hiashur', hiashur)
     dp.addTelegramCommandHandler('norn', norn)
     dp.addTelegramCommandHandler('weed', weed)
+    dp.addTelegramCommandHandler('song', song)
+    dp.addTelegramCommandHandler('kinkshame', kinkshame)
 
     #CLI handlers
     dp.addStringCommandHandler('reply', cli_reply)
