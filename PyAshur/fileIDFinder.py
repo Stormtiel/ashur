@@ -1,63 +1,86 @@
-﻿#Makes bot record file_id of any file sent
-import logging
-import telegram
-from time import sleep
-from urllib.error import URLError
+﻿#super janky bot that responds to sent files with the file id
+
+from telegram import Updater
+from telegram.dispatcher import run_async
+
+fileids = open('fileids.txt','a')
+
+def any_message(bot, update):
+    global last_chat_id
+    last_chat_id = update.message.chat_id
+
+    logger.info("New message\nFrom: %s\nchat_id: %d\nText: %s" %
+                (update.message.from_user,
+                 update.message.chat_id,
+                 update.message.text))
+
+
+def unknown_command(bot, update):
+    bot.sendMessage(update.message.chat_id, text='Command not recognized!')
+
+
+@run_async
+def message(bot, update, **kwargs):
+
+    #TODO: make this more flexible and not error when not sent a photo
+    sleep(2)
+    fileid = update.message.photo[0].file_id
+    bot.sendMessage(update.message.chat_id, fileid)
+    fileids.write("\"" + fileid + "\",\n")
+
+
+def cli_reply(bot, update, args):
+    if last_chat_id is not 0:
+        bot.sendMessage(chat_id=last_chat_id, text=' '.join(args))
+
+
+def cli_noncommand(bot, update, update_queue):
+    update_queue.put('/%s' % update)
+
+
+def unknown_cli_command(bot, update):
+    logger.warn("Command not found: %s" % update)
+
+
+def error(bot, update, error):
+    logger.warn('Update %s caused error %s' % (update, error))
 
 
 def main():
-    # Telegram Bot Authorization Token
-    bot = telegram.Bot('172323851:AAFTueJhSP2C5MCoQliVIel6Ox11ZFZAMzA')
+    config = configparser.ConfigParser()
+    config.read('info.ini')
 
-    # get the first pending update_id, this is so we can skip over it in case
-    # we get an "Unauthorized" exception.
-    try:
-        update_id = bot.getUpdates()[0].update_id
-    except IndexError:
-        update_id = None
+    token = config.get("Connection","Token")
+    updater = Updater(token, workers=10)
 
-    logging.basicConfig(
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    dp = updater.dispatcher
 
+    dp.addUnknownTelegramCommandHandler(unknown_command)
+    dp.addTelegramMessageHandler(message)
+    dp.addTelegramRegexHandler('.*', any_message)
+
+    dp.addStringCommandHandler('reply', cli_reply)
+    dp.addUnknownStringCommandHandler(unknown_cli_command)
+    dp.addStringRegexHandler('[^/].*', cli_noncommand)
+
+    dp.addErrorHandler(error)
+
+    update_queue = updater.start_polling(poll_interval=0.1, timeout=10)
+
+    # Start CLI-Loop
     while True:
         try:
-            update_id = echo(bot, update_id)
-        except telegram.TelegramError as e:
-            # These are network problems with Telegram.
-            if e.message in ("Bad Gateway", "Timed out"):
-                sleep(1)
-            elif e.message == "Unauthorized":
-                # The user has removed or blocked the bot.
-                update_id += 1
-            else:
-                raise e
-        except URLError as e:
-            # These are network problems on our end.
-            sleep(1)
+            text = raw_input()
+        except NameError:
+            text = input()
 
+        if text == 'stop':
+            fileids.close()
+            updater.stop()
+            break
 
-def echo(bot, update_id):
-
-    # Request updates after the last update_id
-    for update in bot.getUpdates(offset=update_id, timeout=10):
-        # chat_id is required to reply to any message
-        chat_id = update.message.chat_id
-        update_id = update.update_id + 1
-        message = update.message
-
-        if message:
-            # Reply to the message
-            try:
-                bot.sendMessage(chat_id=chat_id,
-                            text=message.text)
-            except:
-                try:
-                    bot.sendMessage(chat_id=chat_id,text=message.audio.file_id)
-                except:
-                    print("do nothing bc I am a really fucking good programmer")
-
-    return update_id
-
+        elif len(text) > 0:
+            update_queue.put(text)
 
 if __name__ == '__main__':
     main()
