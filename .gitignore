@@ -187,3 +187,5 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+/PyAshur/info.ini
+/PyAshur/echobot.py

@@ -1,5 +1,6 @@
-﻿from telegram import Updater
-from telegram.dispatcher import run_async
+﻿from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler, RegexHandler
+import telegram.ext
+from telegram.ext.dispatcher import run_async
 from time import sleep
 import logging
 import configparser
@@ -174,26 +175,26 @@ def main():
     dp = updater.dispatcher
 
     # add important handlers
-    dp.addTelegramCommandHandler("start", start)
-    dp.addTelegramCommandHandler("help", help)
-    dp.addUnknownTelegramCommandHandler(unknown_command)
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("help", help))
+    dp.add_handler(MessageHandler([Filters.command], unknown_command))
 
-    dp.addTelegramRegexHandler('.*', any_message)
+    dp.add_handler(MessageHandler('.*', any_message))
 
     #non-essential handlers
-    dp.addTelegramCommandHandler('hiashur', hiashur)
-    dp.addTelegramCommandHandler('norn', norn)
-    dp.addTelegramCommandHandler('weed', weed)
-    dp.addTelegramCommandHandler('song', song)
-    dp.addTelegramCommandHandler('kinkshame', kinkshame)
+    dp.add_handler(CommandHandler('hiashur', hiashur))
+    dp.add_handler(CommandHandler('norn', norn))
+    dp.add_handler(CommandHandler('weed', weed))
+    dp.add_handler(CommandHandler('song', song))
+    dp.add_handler(CommandHandler('kinkshame', kinkshame))
 
     #CLI handlers
-    dp.addStringCommandHandler('reply', cli_reply)
-    dp.addUnknownStringCommandHandler(unknown_cli_command)
-    dp.addStringRegexHandler('[^/].*', cli_noncommand)
+    dp.add_handler(InlineQueryHandler('reply', cli_reply))
+    dp.add_handler(InlineQueryHandler(unknown_cli_command))
+    dp.add_handler(RegexHandler('[^/].*', cli_noncommand))
 
     #Error handler
-    dp.addErrorHandler(error)
+    dp.add_error_handler(error)
 
     #start bot and start polling
     update_queue = updater.start_polling(poll_interval=0.1, timeout=10)
